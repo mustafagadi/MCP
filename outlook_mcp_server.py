@@ -168,24 +168,6 @@ def get_emails_from_folder(folder, days: int, search_term: Optional[str] = None)
 
 # MCP Tools
 @mcp.tool()
-def mark_email_as_read(ctx: Context, email_number: int) -> str:
-    """
-    Mark an email as read based on its number in the cache.
-    Args:
-        email_number (int): The number of the email in the cache.
-    """
-    try:
-        if email_number not in email_cache:
-            return f"Email #{email_number} not found in cache."
-
-        mail_item = email_cache[email_number]
-        mail_item.UnRead = False  # Mark as read
-        mail_item.Save()  # Save the change
-        return f"Email #{email_number} has been marked as read."
-    except Exception as e:
-        return f"Failed to mark email as read: {str(e)}"
-
-@mcp.tool()
 def list_folders() -> str:
     """
     List all available mail folders in Outlook
@@ -471,41 +453,7 @@ def compose_email(recipient_email: str, subject: str, body: str, cc_email: Optio
         return f"Error sending email: {str(e)}"
 
 
-@mcp.tool()
-def create_draft_reply_by_number(email_number: int, reply_text: str) -> str:
-    """
-    Create a draft reply to a specific email by its number from the last listing
 
-    Args:
-        email_number: The number of the email from the list results
-        reply_text: The text content for the draft reply
-
-    Returns:
-        Status message with draft details
-    """
-    try:
-        if not email_cache:
-            return "Error: No cached emails. Use list_recent_emails/search first."
-
-        email_data = email_cache.get(email_number)
-        if not email_data:
-            return f"Error: Email #{email_number} not found in cache."
-
-        outlook, namespace = connect_to_outlook()
-        email = namespace.GetItemFromID(email_data["id"])
-
-        # Create draft reply
-        reply = email.Reply()
-        reply.Body = reply_text + "\n\n[AI-generated draft - review before sending]"
-        reply.Save()  # Saves to Drafts folder
-
-        return (f"Draft reply created successfully to email #{email_number}\n"
-                f"Subject: {reply.Subject}\n"
-                f"Draft ID: {reply.EntryID}\n"
-                "Review in Outlook Drafts folder before sending.")
-
-    except Exception as e:
-        return f"Error creating draft reply: {str(e)}"
 
 
 # Manual registry for Flask wrapper
